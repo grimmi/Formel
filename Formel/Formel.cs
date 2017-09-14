@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using static System.Math;
 
 namespace Formel
 {
@@ -71,7 +72,7 @@ namespace Formel
                 if (isOperator)
                 {
                     currentToken = HandleCurrentToken(output, currentToken);
-                    switch(@operator)
+                    switch (@operator)
                     {
                         case Operator op when op == Operator.OpenParen:
                             operators.Push(op);
@@ -85,7 +86,7 @@ namespace Formel
                             break;
                         default:
                             operators.Push(@operator);
-                            break;                        
+                            break;
                     }
                 }
                 else
@@ -107,6 +108,52 @@ namespace Formel
                 return (true, Operator.ToOperator(token));
             }
             return (false, null);
+        }
+
+        public static decimal Evaluate(IEnumerable<Token> formula)
+        {
+            var tokenList = formula.ToList();
+            var valueStack = new Stack<decimal>();
+            for (int i = 0; i < tokenList.Count; i++)
+            {
+                var token = tokenList[i];
+                if (token is ConstantToken constant)
+                {
+                    valueStack.Push(constant.ConstantValue);
+                    continue;
+                }
+                if (token is VariableToken variable)
+                {
+                    valueStack.Push(variable.Evaluate(new BasicResolver()));
+                    continue;
+                }
+                if (token is SpaceToken) continue;
+                if (token is OperatorToken opToken)
+                {
+                    var value2 = valueStack.Pop();
+                    var value1 = valueStack.Pop();                     
+                    switch (opToken.Operator)
+                    {
+                        case Operator op when op == Operator.Plus:
+                            valueStack.Push(value1 + value2);
+                            break;
+                        case Operator op when op == Operator.Minus:
+                            valueStack.Push(value1 - value2);
+                            break;
+                        case Operator op when op == Operator.Times:
+                            valueStack.Push((value1 * value2));
+                            break;
+                        case Operator op when op == Operator.Divide:
+                            valueStack.Push((value1 / value2));
+                            break;
+                        case Operator op when op == Operator.Power:
+                            valueStack.Push((decimal)Pow((double)value1, (double)value2));
+                            break;
+                    }
+                }
+            }
+
+            return valueStack.Pop();
         }
     }
 }

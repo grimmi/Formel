@@ -21,5 +21,19 @@ namespace Formel.Tests
             Assert.Equal(expected, transformedString);
         }
         
+        [Theory]
+        [InlineData("3 + 4", 7)]
+        [InlineData("2 * 3", 6)]
+        [InlineData("10 / 2", 5)]
+        [InlineData("2 ^ 3", 8)]
+        [InlineData("2 * 2 * 2", 8)]
+        [InlineData("2 + 3 * 4", 14)]
+        public void Evaluate_ValidFormula_ReturnsCorrectResult(string input, decimal expected)
+        {
+            var transformed = Formel.ToReversePolish(input);
+            var result = Formel.Evaluate(transformed);
+
+            Assert.Equal(expected, result);
+        }
     }
 }
