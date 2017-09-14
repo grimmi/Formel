@@ -1,10 +1,11 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using static System.Math;
 using Xunit;
 
 namespace Formel.Tests
 {
-    public class TransformerTests
+    public class FormelTests
     {
         [Theory]
         [InlineData("3 + 4", "3 4 +")]
@@ -63,6 +64,24 @@ namespace Formel.Tests
             var result = Formel.Evaluate(input);
 
             Assert.Equal(expected, (double)result);
+        }
+
+        [Fact]
+        public void AddedModuloOperator_ValidFormula_ShouldEvaluateCorrectly()
+        {
+            Operator.AddOperator("%", Associativity.Left, 3, (v1, v2) => v1 % v2);
+
+            var result = Formel.Evaluate("10 % 3");
+            Assert.Equal(1, result);
+        }
+
+        [Fact]
+        public void AddedLogOperator_ValidFormula_ShouldEvalueCorrectly()
+        {
+            Operator.AddOperator("#", Associativity.Left, 3, (v1, v2) => (decimal)Log((double)v1, (double)v2));
+
+            var result = Formel.Evaluate("10 # 2");
+            Assert.Equal(3.32192809m, result, 8);
         }
     }
 }

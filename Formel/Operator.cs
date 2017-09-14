@@ -46,6 +46,10 @@ namespace Formel
 
         private Func<decimal, decimal, decimal> Operation { get; set; }
 
+        public Associativity Associativity { get; set; }
+
+        public static bool IsOperatorToken(string token) => PrecedenceMap.ContainsKey(token);
+
         public static void AddOperator(string token, Associativity associativity, int precedence, Func<decimal, decimal, decimal> operation)
         {
             var newOp = new Operator(token, associativity);
@@ -53,8 +57,6 @@ namespace Formel
             TokenToOperatorMap[token] = newOp;
             PrecedenceMap[token] = precedence;
         }
-
-        public Associativity Associativity { get; set; }
 
         public static Operator ToOperator(string token)
         {

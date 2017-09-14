@@ -105,7 +105,7 @@ namespace Formel
 
         internal static (bool, Operator) IsOperator(string token)
         {
-            if (operators.Contains(token))
+            if (Operator.IsOperatorToken(token))
             {
                 return (true, Operator.ToOperator(token));
             }
