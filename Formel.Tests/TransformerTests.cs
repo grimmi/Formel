@@ -7,14 +7,21 @@ namespace Formel.Tests
 {
     public class TransformerTests
     {
-        [Fact]
-        public void Transform_ValidFormula_ReturnsTransformedOutput()
+        [Theory]
+        [InlineData("3 + 4", "3 4 +")]
+        [InlineData("3 + 4 + 5", "3 4 + 5 +")]
+        [InlineData("1 * 2 * 3 + 4", "1 2 * 3 * 4 +")]
+        [InlineData("1 + 2 * 3 + 4", "1 2 3 * + 4 +")]
+        [InlineData("1 + 2 / 3", "1 2 3 / +")]
+        [InlineData("1 * ( 2 + 3 )", "1 2 3 + *")]
+        [InlineData("3 + 4 * 2 / (1 - 5) ^ 2 ^ 3", "3 4 2 * 1 5 - 2 3 ^ ^ / +")]
+        [InlineData("${abc} * 10 / 3", "${abc} 10 * 3 /")]
+        public void Transform_ValidFormula_ReturnsTransformedOutput(string input, string expected)
         {
-            var input = "3 + 4";
-
             var transformed = Formel.Transform(input);
-
-            Assert.Equal("3 4 +", transformed);
+            var transformedString = string.Join(" ", transformed);
+            Assert.Equal(expected, transformedString);
         }
+        
     }
 }

@@ -7,11 +7,13 @@ namespace Formel
 {
     public class Operator : IComparable<Operator>, IEquatable<Operator>
     {
-        public static Operator Power = new Operator("^");
-        public static Operator Times = new Operator("*");
-        public static Operator Divide = new Operator("/");
-        public static Operator Plus = new Operator("+");
-        public static Operator Minus = new Operator("-");
+        public static Operator Power = new Operator("^", Associativity.Right);
+        public static Operator Times = new Operator("*", Associativity.Left);
+        public static Operator Divide = new Operator("/", Associativity.Left);
+        public static Operator Plus = new Operator("+", Associativity.Left);
+        public static Operator Minus = new Operator("-", Associativity.Left);
+        public static Operator OpenParen = new Operator("(", Associativity.Left);
+        public static Operator CloseParen = new Operator(")", Associativity.Right);
 
         private static Dictionary<Operator, int> PrecedenceMap = new Dictionary<Operator, int>
         {
@@ -19,8 +21,12 @@ namespace Formel
             [Times] = 3,
             [Divide] = 3,
             [Plus] = 2,
-            [Minus] = 1
+            [Minus] = 1,
+            [OpenParen] = 0,
+            [CloseParen] = 0,
         };
+
+        public Associativity Associativity { get; set; }
 
         public static Operator ToOperator(string token)
         {
@@ -36,6 +42,8 @@ namespace Formel
                 case "/": return PrecedenceMap[Divide];
                 case "+": return PrecedenceMap[Plus];
                 case "-": return PrecedenceMap[Minus];
+                case "(": return PrecedenceMap[OpenParen];
+                case ")": return PrecedenceMap[CloseParen];
             }
             throw new ArgumentException($"unknown operator '{Token}'!");
         }
@@ -47,7 +55,11 @@ namespace Formel
 
         public string Token { get; }
 
-        private Operator(string token) { Token = token; }
+        private Operator(string token, Associativity associativity)
+        {
+            Token = token;
+            Associativity = associativity;
+        }
 
         public int CompareTo(Operator other)
         {
@@ -56,7 +68,7 @@ namespace Formel
 
         public override bool Equals(object obj)
         {
-            if(obj is Operator other)
+            if (obj is Operator other)
             {
                 return Equals(other);
             }
