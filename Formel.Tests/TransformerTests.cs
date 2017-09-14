@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using Xunit;
 
 namespace Formel.Tests
@@ -38,6 +39,30 @@ namespace Formel.Tests
             var result = Formel.Evaluate(transformed);
 
             Assert.Equal(expected, (double)result, 15);
+        }
+
+        private IResolver GetDictionaryResolver()
+        {
+            return new DictionaryResolver(new Dictionary<string, decimal>
+            {
+                ["${abc}"] = 1,
+                ["${two}"] = 2,
+                ["${three.four}"] = 3.4m,
+                ["${ten}"] = 10
+            });
+        }
+
+        [Theory]
+        [InlineData("${abc} + 2", 3)]
+        [InlineData("${two} * 2", 4)]
+        [InlineData("2 ^ ${ten}", 1024)]
+        public void Evaluate_FormulaWithVariables_ReturnsTheCorrectResult(string input, double expected)
+        {
+            Formel.Resolver = GetDictionaryResolver();
+
+            var result = Formel.Evaluate(Formel.ToReversePolish(input));
+
+            Assert.Equal(expected, (double)result);
         }
     }
 }

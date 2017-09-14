@@ -8,6 +8,8 @@ namespace Formel
     {
         static string[] operators = "+,-,*,/,^,(,)".Split(new[] { ',' });
 
+        public static IResolver Resolver { get; set; } = new BasicResolver();
+
         private static string HandleCurrentToken(List<Token> output, string currentToken)
         {
             if (currentToken.Trim().Length > 0)
@@ -124,7 +126,7 @@ namespace Formel
                 }
                 if (token is VariableToken variable)
                 {
-                    valueStack.Push(variable.Evaluate(new BasicResolver()));
+                    valueStack.Push(variable.Evaluate(Resolver));
                     continue;
                 }
                 if (token is SpaceToken) continue;
