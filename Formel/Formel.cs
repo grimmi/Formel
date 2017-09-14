@@ -7,7 +7,7 @@ namespace Formel
     {
         static string[] operators = "+,-,*,/,^,(,)".Split(new[] { ',' });
 
-        public static IEnumerable<string> Transform(string input)
+        public static IEnumerable<string> ToReversePolish(string input)
         {
             var output = new List<string>();
             var operators = new Stack<Operator>();

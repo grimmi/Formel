@@ -18,7 +18,7 @@ namespace Formel.Tests
         [InlineData("${abc} * 10 / 3", "${abc} 10 * 3 /")]
         public void Transform_ValidFormula_ReturnsTransformedOutput(string input, string expected)
         {
-            var transformed = Formel.Transform(input);
+            var transformed = Formel.ToReversePolish(input);
             var transformedString = string.Join(" ", transformed);
             Assert.Equal(expected, transformedString);
         }
