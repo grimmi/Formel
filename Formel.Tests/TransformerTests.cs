@@ -27,13 +27,17 @@ namespace Formel.Tests
         [InlineData("10 / 2", 5)]
         [InlineData("2 ^ 3", 8)]
         [InlineData("2 * 2 * 2", 8)]
-        [InlineData("2 + 3 * 4", 14)]
-        public void Evaluate_ValidFormula_ReturnsCorrectResult(string input, decimal expected)
+        [InlineData("2 + 3 * 4", 14)] 
+        [InlineData("2 + 2 ^ 3", 10)]
+        [InlineData("(2 + 2) * 4", 16)]
+        [InlineData("(2 / 4) * 2", 1)]
+        [InlineData("3 + 4 * 2 / (1 - 5) ^ 2 ^ 3", 3.0001220703125)]
+        public void Evaluate_ValidFormula_ReturnsCorrectResult(string input, double expected)
         {
             var transformed = Formel.ToReversePolish(input);
             var result = Formel.Evaluate(transformed);
 
-            Assert.Equal(expected, result);
+            Assert.Equal(expected, (double)result, 15);
         }
     }
 }
