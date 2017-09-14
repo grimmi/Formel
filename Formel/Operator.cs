@@ -1,53 +1,67 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using static System.Math;
-using System.Text;
 
 namespace Formel
 {
     public class Operator : IComparable<Operator>, IEquatable<Operator>
     {
-        public static Operator Power = new Operator("^", Associativity.Right);
-        public static Operator Times = new Operator("*", Associativity.Left);
-        public static Operator Divide = new Operator("/", Associativity.Left);
-        public static Operator Plus = new Operator("+", Associativity.Left);
-        public static Operator Minus = new Operator("-", Associativity.Left);
-        public static Operator OpenParen = new Operator("(", Associativity.Left);
-        public static Operator CloseParen = new Operator(")", Associativity.Right);
+        private static string PowerToken = "^";
+        private static string TimesToken = "*";
+        private static string DivideToken = "/";
+        private static string PlusToken = "+";
+        private static string MinusToken = "-";
+        private static string OpenParenToken = "(";
+        private static string CloseParenToken = ")";
 
-        private static Dictionary<Operator, int> PrecedenceMap = new Dictionary<Operator, int>
+        public static Operator Power => TokenToOperatorMap[PowerToken];
+        public static Operator Times => TokenToOperatorMap[TimesToken];
+        public static Operator Divide => TokenToOperatorMap[DivideToken];
+        public static Operator Plus => TokenToOperatorMap[PlusToken];
+        public static Operator Minus => TokenToOperatorMap[MinusToken];
+        public static Operator OpenParen => TokenToOperatorMap[OpenParenToken];
+        public static Operator CloseParen => TokenToOperatorMap[CloseParenToken];
+
+        private static Dictionary<string, Operator> TokenToOperatorMap = new Dictionary<string, Operator>
         {
-            [Power] = 4,
-            [Times] = 3,
-            [Divide] = 3,
-            [Plus] = 2,
-            [Minus] = 1,
-            [OpenParen] = 0,
-            [CloseParen] = 0,
+            [PowerToken] = new Operator("^", Associativity.Right),
+            [TimesToken] = new Operator("*"),
+            [DivideToken] = new Operator("/"),
+            [PlusToken] = new Operator("+"),
+            [MinusToken] = new Operator("-"),
+            [OpenParenToken] = new Operator("("),
+            [CloseParenToken] = new Operator(")", Associativity.Right)
         };
+
+        private static Dictionary<string, int> PrecedenceMap = new Dictionary<string, int>
+        {
+            [PowerToken] = 4,
+            [TimesToken] = 3,
+            [DivideToken] = 3,
+            [PlusToken] = 2,
+            [MinusToken] = 1,
+            [OpenParenToken] = 0,
+            [CloseParenToken] = 0,
+        };
+
+        private Func<decimal, decimal, decimal> Operation { get; set; }
+
+        public static void AddOperator(string token, Associativity associativity, int precedence, Func<decimal, decimal, decimal> operation)
+        {
+            var newOp = new Operator(token, associativity);
+            newOp.Operation = operation;
+            TokenToOperatorMap[token] = newOp;
+            PrecedenceMap[token] = precedence;
+        }
 
         public Associativity Associativity { get; set; }
 
         public static Operator ToOperator(string token)
         {
-            return PrecedenceMap.Single(kvp => kvp.Key.Token.Equals(token)).Key;
+            return TokenToOperatorMap[token];
         }
 
-        private int GetPrecedence()
-        {
-            switch (Token)
-            {
-                case "^": return PrecedenceMap[Power];
-                case "*": return PrecedenceMap[Times];
-                case "/": return PrecedenceMap[Divide];
-                case "+": return PrecedenceMap[Plus];
-                case "-": return PrecedenceMap[Minus];
-                case "(": return PrecedenceMap[OpenParen];
-                case ")": return PrecedenceMap[CloseParen];
-            }
-            throw new ArgumentException($"unknown operator '{Token}'!");
-        }
+        private int GetPrecedence() => PrecedenceMap[Token];
 
         public override string ToString()
         {
@@ -56,7 +70,7 @@ namespace Formel
 
         public string Token { get; }
 
-        private Operator(string token, Associativity associativity)
+        private Operator(string token, Associativity associativity = Associativity.Left)
         {
             Token = token;
             Associativity = associativity;
@@ -64,7 +78,12 @@ namespace Formel
 
         public decimal Operate(decimal val1, decimal val2)
         {
-            switch(Token)
+            if(Operation != null)
+            {
+                return Operation(val1, val2);
+            }
+
+            switch (Token)
             {
                 case "^": return (decimal)Pow((double)val1, (double)val2);
                 case "*": return val1 * val2;
