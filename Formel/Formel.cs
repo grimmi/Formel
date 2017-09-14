@@ -7,6 +7,58 @@ namespace Formel
     {
         static string[] operators = "+,-,*,/,^,(,)".Split(new[] { ',' });
 
+        private static string HandleCurrentToken(List<string> output, string currentToken)
+        {
+            if (currentToken.Trim().Length > 0)
+            {
+                output.Add(currentToken.Trim());
+            }
+            return string.Empty;
+        }
+
+        private static void PopUntilOpenParen(Stack<Operator> operators, List<string> output)
+        {
+            var topOp = operators.Peek();
+            while (topOp != Operator.OpenParen)
+            {
+                output.Add(operators.Pop().Token);
+                topOp = operators.Peek();
+            }
+            if (topOp == Operator.OpenParen)
+            {
+                operators.Pop();
+            }
+        }
+
+        private static void PopHigherOperators(Stack<Operator> operators, Operator op, List<string> output)
+        {
+            var topOp = operators.Peek();
+            while (operators.Count > 0 && topOp.Associativity == Associativity.Left && topOp.CompareTo(op) > -1)
+            {
+                output.Add(operators.Pop().Token);
+                if (operators.Count > 0)
+                {
+                    topOp = operators.Peek();
+                }
+            }
+        }
+
+        private static void AppendLastToken(List<string> output, string currentToken)
+        {
+            if (!string.IsNullOrWhiteSpace(currentToken))
+            {
+                output.Add(currentToken.Trim());
+            }
+        }
+
+        private static void PopAllOperatorsOntoOutput(Stack<Operator> operators, List<string> output)
+        {
+            while (operators.Count > 0)
+            {
+                output.Add(operators.Pop().Token);
+            }
+        }
+
         public static IEnumerable<string> ToReversePolish(string input)
         {
             var output = new List<string>();
@@ -15,64 +67,35 @@ namespace Formel
             for (int i = 0; i < input.Length; i++)
             {
                 var token = input[i].ToString();
-                var (isop, op) = IsOperator(token);
+                var (isop, tokenOp) = IsOperator(token);
                 if (isop)
                 {
-                    if (currentToken.Trim().Length > 0)
+                    currentToken = HandleCurrentToken(output, currentToken);
+                    switch(tokenOp)
                     {
-                        output.Add(currentToken.Trim());
-                    }
-                    currentToken = string.Empty;
-                    if (op == Operator.OpenParen)
-                    {
-                        operators.Push(op);
-                    }
-                    else if (op == Operator.CloseParen)
-                    {
-                        var topOp = operators.Peek();
-                        while (topOp != Operator.OpenParen)
-                        {
-                            output.Add(operators.Pop().Token);
-                            topOp = operators.Peek();
-                        }
-                        if (topOp == Operator.OpenParen)
-                        {
-                            operators.Pop();
-                        }
-                    }
-                    else if (operators.Count > 0)
-                    {
-                        var topOp = operators.Peek();
-                        while (operators.Count > 0 && topOp.Associativity == Associativity.Left && topOp.CompareTo(op) > -1)
-                        {
-                            output.Add(operators.Pop().Token);
-                            if (operators.Count > 0)
-                            {
-                                topOp = operators.Peek();
-                            }
-                        }
-                        operators.Push(op);
-                    }
-                    else
-                    {
-                        operators.Push(op);
+                        case Operator op when op == Operator.OpenParen:
+                            operators.Push(op);
+                            break;
+                        case Operator op when op == Operator.CloseParen:
+                            PopUntilOpenParen(operators, output);
+                            break;
+                        case Operator op when operators.Count > 0:
+                            PopHigherOperators(operators, op, output);
+                            operators.Push(tokenOp);
+                            break;
+                        default:
+                            operators.Push(tokenOp);
+                            break;                        
                     }
                 }
                 else
                 {
-                    currentToken += token.Trim();
+                    currentToken += token;
                 }
             }
 
-            if (!string.IsNullOrWhiteSpace(currentToken))
-            {
-                output.Add(currentToken.Trim());
-            }
-
-            while (operators.Count > 0)
-            {
-                output.Add(operators.Pop().Token);
-            }
+            AppendLastToken(output, currentToken);
+            PopAllOperatorsOntoOutput(operators, output);
 
             return output;
         }
