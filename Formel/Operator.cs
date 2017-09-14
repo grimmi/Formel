@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using static System.Math;
 using System.Text;
 
 namespace Formel
@@ -59,6 +60,19 @@ namespace Formel
         {
             Token = token;
             Associativity = associativity;
+        }
+
+        public decimal Operate(decimal val1, decimal val2)
+        {
+            switch(Token)
+            {
+                case "^": return (decimal)Pow((double)val1, (double)val2);
+                case "*": return val1 * val2;
+                case "/": return val1 / val2;
+                case "+": return val1 + val2;
+                case "-": return val1 - val2;
+                default: throw new InvalidOperationException("this operator cannot be evaluated!");
+            }
         }
 
         public int CompareTo(Operator other)

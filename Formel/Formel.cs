@@ -112,6 +112,11 @@ namespace Formel
             return (false, null);
         }
 
+        public static decimal Evaluate(string formula)
+        {
+            return Evaluate(ToReversePolish(formula));
+        }
+
         public static decimal Evaluate(IEnumerable<Token> formula)
         {
             var tokenList = formula.ToList();
@@ -133,25 +138,8 @@ namespace Formel
                 if (token is OperatorToken opToken)
                 {
                     var value2 = valueStack.Pop();
-                    var value1 = valueStack.Pop();                     
-                    switch (opToken.Operator)
-                    {
-                        case Operator op when op == Operator.Plus:
-                            valueStack.Push(value1 + value2);
-                            break;
-                        case Operator op when op == Operator.Minus:
-                            valueStack.Push(value1 - value2);
-                            break;
-                        case Operator op when op == Operator.Times:
-                            valueStack.Push((value1 * value2));
-                            break;
-                        case Operator op when op == Operator.Divide:
-                            valueStack.Push((value1 / value2));
-                            break;
-                        case Operator op when op == Operator.Power:
-                            valueStack.Push((decimal)Pow((double)value1, (double)value2));
-                            break;
-                    }
+                    var value1 = valueStack.Pop();
+                    valueStack.Push(opToken.Operator.Operate(value1, value2));
                 }
             }
 

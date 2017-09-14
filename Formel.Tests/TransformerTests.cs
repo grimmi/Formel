@@ -35,8 +35,7 @@ namespace Formel.Tests
         [InlineData("3 + 4 * 2 / (1 - 5) ^ 2 ^ 3", 3.0001220703125)]
         public void Evaluate_ValidFormula_ReturnsCorrectResult(string input, double expected)
         {
-            var transformed = Formel.ToReversePolish(input);
-            var result = Formel.Evaluate(transformed);
+            var result = Formel.Evaluate(input);
 
             Assert.Equal(expected, (double)result, 15);
         }
@@ -56,11 +55,12 @@ namespace Formel.Tests
         [InlineData("${abc} + 2", 3)]
         [InlineData("${two} * 2", 4)]
         [InlineData("2 ^ ${ten}", 1024)]
+        [InlineData("(${ten} + ${two}) * 2", 24)]
         public void Evaluate_FormulaWithVariables_ReturnsTheCorrectResult(string input, double expected)
         {
             Formel.Resolver = GetDictionaryResolver();
 
-            var result = Formel.Evaluate(Formel.ToReversePolish(input));
+            var result = Formel.Evaluate(input);
 
             Assert.Equal(expected, (double)result);
         }
