@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Linq;
 using Xunit;
 
 namespace Formel.Tests
@@ -19,7 +17,7 @@ namespace Formel.Tests
         public void Transform_ValidFormula_ReturnsTransformedOutput(string input, string expected)
         {
             var transformed = Formel.ToReversePolish(input);
-            var transformedString = string.Join(" ", transformed);
+            var transformedString = string.Join(" ", transformed.Select(t => t.ToString()));
             Assert.Equal(expected, transformedString);
         }
         
