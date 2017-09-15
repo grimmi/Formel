@@ -16,7 +16,7 @@ namespace Formel.Tests
         [InlineData("1 * ( 2 + 3 )", "1 2 3 + *")]
         [InlineData("3 + 4 * 2 / (1 - 5) ^ 2 ^ 3", "3 4 2 * 1 5 - 2 3 ^ ^ / +")]
         [InlineData("${abc} * 10 / 3", "${abc} 10 * 3 /")]
-        public void Transform_ValidFormula_ReturnsTransformedOutput(string input, string expected)
+        public void ToReversePolish_ValidInput_ReturnsFormulaInReversePolishNotation(string input, string expected)
         {
             var transformed = Formel.ToReversePolish(input);
             var transformedString = string.Join(" ", transformed.Select(t => t.ToString()));
