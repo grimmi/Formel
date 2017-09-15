@@ -1,0 +1,20 @@
+﻿<Window x:Class="FormelGui.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:FormelGui"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="350" Width="525"
+        x:Name="theWindow">
+    <Window.Resources>
+        <ContextMenu x:Key="spanMenu" DataContext="{Binding RelativeSource={RelativeSource Self}, Path=PlacementTarget.DataContext}" ItemsSource="{Binding Path=ResolverVariables}" />
+    </Window.Resources>
+    <Grid Margin="5 15 5 5">
+        <TextBlock>
+            3 * 4 + (<Span x:Name="abc_1" MouseDown="Span_MouseDown" Background="#FFA1DDFF" FontStyle="Italic" FontWeight="DemiBold" ContextMenu="{StaticResource spanMenu}">${abc}</Span> ^ 2) / (
+            <Span x:Name="factor_1" MouseDown="Span_MouseDown" Background="#FFA1DDFF" FontStyle="Italic" FontWeight="DemiBold" ContextMenu="{StaticResource spanMenu}">${factor}</Span> +
+            <Span x:Name="multiplier_1" MouseDown="Span_MouseDown" Background="#FFA1DDFF" FontStyle="Italic" FontWeight="DemiBold" ContextMenu="{StaticResource spanMenu}">${multiplier}</Span> * 0.1)
+        </TextBlock>
+    </Grid>
+</Window>

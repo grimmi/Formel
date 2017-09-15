@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace Formel
@@ -7,10 +8,13 @@ namespace Formel
     public interface IResolver
     {
         decimal ResolveVariableValue(VariableToken token);
+        IEnumerable<string> ProvidedVariables { get; }
     }
 
     public class BasicResolver : IResolver
     {
+        public IEnumerable<string> ProvidedVariables => Enumerable.Empty<string>();
+
         public decimal ResolveVariableValue(VariableToken token)
         {
             return 0;
@@ -20,6 +24,7 @@ namespace Formel
     public class DictionaryResolver : IResolver
     {
         private Dictionary<string, decimal> VariableToValueMap { get; }
+        public IEnumerable<string> ProvidedVariables => VariableToValueMap.Keys;
 
         public DictionaryResolver(Dictionary<string, decimal> variableToValue)
         {
