@@ -27,7 +27,8 @@ namespace FormelGui
             {
                 Header = v,
                 Command = new ReplaceSpanCommand(v),
-                CommandParameter = this
+                CommandParameter = this,
+                ToolTip = Resolver.GetDescription(v)
             });
 
         public Span CurrentClickedSpan { get; set; }
@@ -39,6 +40,11 @@ namespace FormelGui
                 ["${abc}"] = 1m,
                 ["${factor}"] = 10m,
                 ["${multiplier}"] = 0.5m
+            }, new Dictionary<string, string>
+            {
+                ["${abc}"] = "the abc factor",
+                ["${factor}"] = "very important",
+                ["${multiplier}"] = "the thing that's to be multiplied with"
             });
             InitializeComponent();
             var contextMenu = FindResource("spanMenu") as ContextMenu;
@@ -47,8 +53,11 @@ namespace FormelGui
 
         private void Span_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            CurrentClickedSpan = (sender as Span);
-            CurrentClickedSpan.Background = Brushes.LightCoral;
+            if (e.RightButton == MouseButtonState.Pressed)
+            {
+                CurrentClickedSpan = (sender as Span);
+                CurrentClickedSpan.Background = Brushes.LightCoral;
+            }
         }
     }
 

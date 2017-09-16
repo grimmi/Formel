@@ -9,6 +9,7 @@ namespace Formel
     {
         decimal ResolveVariableValue(VariableToken token);
         IEnumerable<string> ProvidedVariables { get; }
+        string GetDescription(string variable);
     }
 
     public class BasicResolver : IResolver
@@ -19,6 +20,8 @@ namespace Formel
         {
             return 0;
         }
+
+        public string GetDescription(string variable) => variable;
     }
 
     public class DictionaryResolver : IResolver
@@ -26,9 +29,12 @@ namespace Formel
         private Dictionary<string, decimal> VariableToValueMap { get; }
         public IEnumerable<string> ProvidedVariables => VariableToValueMap.Keys;
 
-        public DictionaryResolver(Dictionary<string, decimal> variableToValue)
+        private Dictionary<string, string> Descriptions { get; }
+
+        public DictionaryResolver(Dictionary<string, decimal> variableToValue, Dictionary<string, string> descriptions = null)
         {
             VariableToValueMap = variableToValue;
+            Descriptions = descriptions ?? new Dictionary<string, string>();
         }
 
         public decimal ResolveVariableValue(VariableToken token)
@@ -39,6 +45,15 @@ namespace Formel
             }
 
             throw new ArgumentException("unknown variable!");
+        }
+
+        public string GetDescription(string variable)
+        {
+            if(Descriptions.TryGetValue(variable, out string description))
+            {
+                return description;
+            }
+            return variable;
         }
     }
 }
