@@ -25,10 +25,11 @@ namespace FormelGui
         public IEnumerable<MenuItem> ResolverVariables =>
             Resolver.ProvidedVariables.Select(v => new MenuItem
             {
-                Header = v,
+                Header = $"{Resolver.GetDescription(v)} ({v})",
                 Command = new ReplaceSpanCommand(v),
                 CommandParameter = this,
-                ToolTip = Resolver.GetDescription(v)
+                ToolTip = Resolver.GetDescription(v),
+                Icon = new Image { Source = new BitmapImage(new Uri("images/variable.png", UriKind.Relative)) }
             });
 
         public Span CurrentClickedSpan { get; set; }
@@ -49,6 +50,13 @@ namespace FormelGui
             InitializeComponent();
             var contextMenu = FindResource("spanMenu") as ContextMenu;
             contextMenu.DataContext = this;
+            contextMenu.Closed += ContextMenu_Closed;
+        }
+
+        private void ContextMenu_Closed(object sender, RoutedEventArgs e)
+        {
+            if (CurrentClickedSpan == null) return;            
+            CurrentClickedSpan.Background = (SolidColorBrush)(new BrushConverter().ConvertFrom("#FFA1DDFF"));
         }
 
         private void Span_MouseDown(object sender, MouseButtonEventArgs e)
