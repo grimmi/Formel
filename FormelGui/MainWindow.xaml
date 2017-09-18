@@ -17,12 +17,32 @@
             <Setter Property="ContextMenu" Value="{StaticResource spanMenu}"/>
             <EventSetter Event="MouseDown" Handler="Span_MouseDown"/>
         </Style>
+        <Style x:Key="runStyle" TargetType="Run">
+            <Setter Property="Background" Value="#FFA1DDFF"/>
+            <Setter Property="FontStyle" Value="Italic"/>
+            <Setter Property="FontWeight" Value="DemiBold"/>
+            <Setter Property="ContextMenu" Value="{StaticResource spanMenu}"/>
+            <EventSetter Event="MouseDown" Handler="Run_MouseDown"/>
+        </Style>
+        <Style x:Key="runStyleActive" TargetType="Run" BasedOn="{StaticResource runStyle}">
+            <Setter Property="Background" Value="MediumSeaGreen" />
+        </Style>
     </Window.Resources>
     <Grid Margin="5 15 5 5">
-        <TextBlock>
+        <Grid.RowDefinitions>
+            <RowDefinition></RowDefinition>
+            <RowDefinition></RowDefinition>
+        </Grid.RowDefinitions>
+        <TextBlock Grid.Row="0">
             3 * 4 + (<Span x:Name="abc_1" Style="{StaticResource spanStyle}">${abc}</Span> ^ 2) / (
             <Span x:Name="factor_1" Style="{StaticResource spanStyle}">${factor}</Span> +
             <Span x:Name="multiplier_1" Style="{StaticResource spanStyle}">${multiplier}</Span> * 0.1)
         </TextBlock>
+        <RichTextBox Grid.Row="1" TextChanged="RichTextBox_TextChanged" ContextMenu="{StaticResource spanMenu}">
+            <FlowDocument>
+                <Paragraph x:Name="formulaParagraph">
+                </Paragraph>
+            </FlowDocument>
+        </RichTextBox>
     </Grid>
 </Window>
