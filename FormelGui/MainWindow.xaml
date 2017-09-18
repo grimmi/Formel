@@ -8,13 +8,21 @@
         Title="MainWindow" Height="350" Width="525"
         x:Name="theWindow">
     <Window.Resources>
-        <ContextMenu x:Key="spanMenu" DataContext="{Binding RelativeSource={RelativeSource Self}, Path=PlacementTarget.DataContext}" ItemsSource="{Binding Path=ResolverVariables}" />
+        <ContextMenu x:Key="spanMenu" DataContext="{Binding RelativeSource={RelativeSource Self}, Path=PlacementTarget.DataContext}" 
+                     ItemsSource="{Binding Path=ResolverVariables}" Closed="ContextMenu_Closed"/>
+        <Style x:Key="spanStyle" TargetType="Span">
+            <Setter Property="Background" Value="#FFA1DDFF"/>
+            <Setter Property="FontStyle" Value="Italic"/>
+            <Setter Property="FontWeight" Value="DemiBold"/>
+            <Setter Property="ContextMenu" Value="{StaticResource spanMenu}"/>
+            <EventSetter Event="MouseDown" Handler="Span_MouseDown"/>
+        </Style>
     </Window.Resources>
     <Grid Margin="5 15 5 5">
         <TextBlock>
-            3 * 4 + (<Span x:Name="abc_1" MouseDown="Span_MouseDown" Background="#FFA1DDFF" FontStyle="Italic" FontWeight="DemiBold" ContextMenu="{StaticResource spanMenu}">${abc}</Span> ^ 2) / (
-            <Span x:Name="factor_1" MouseDown="Span_MouseDown" Background="#FFA1DDFF" FontStyle="Italic" FontWeight="DemiBold" ContextMenu="{StaticResource spanMenu}">${factor}</Span> +
-            <Span x:Name="multiplier_1" MouseDown="Span_MouseDown" Background="#FFA1DDFF" FontStyle="Italic" FontWeight="DemiBold" ContextMenu="{StaticResource spanMenu}">${multiplier}</Span> * 0.1)
+            3 * 4 + (<Span x:Name="abc_1" Style="{StaticResource spanStyle}">${abc}</Span> ^ 2) / (
+            <Span x:Name="factor_1" Style="{StaticResource spanStyle}">${factor}</Span> +
+            <Span x:Name="multiplier_1" Style="{StaticResource spanStyle}">${multiplier}</Span> * 0.1)
         </TextBlock>
     </Grid>
 </Window>
