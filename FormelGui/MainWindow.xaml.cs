@@ -50,7 +50,6 @@ namespace FormelGui
             InitializeComponent();
             var contextMenu = FindResource("spanMenu") as ContextMenu;
             contextMenu.DataContext = this;
-            contextMenu.Closed += ContextMenu_Closed;
         }
 
         private void ContextMenu_Closed(object sender, RoutedEventArgs e)
