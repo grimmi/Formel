@@ -60,7 +60,7 @@ namespace FormelGui
                 CurrentClickedSpan.Background = (SolidColorBrush)(new BrushConverter().ConvertFrom("#FFA1DDFF"));
                 CurrentClickedSpan = null;
             }
-            if(CurrentClickedRun != null)
+            if (CurrentClickedRun != null)
             {
                 CurrentClickedRun.Background = (SolidColorBrush)(new BrushConverter().ConvertFrom("#FFA1DDFF"));
                 CurrentClickedRun = null;
@@ -75,13 +75,14 @@ namespace FormelGui
                 CurrentClickedSpan.Background = Brushes.LightCoral;
             }
         }
-        
+
         private string currentText = "";
         private bool clearingRuns = false;
 
         private void RichTextBox_TextChanged(object sender, TextChangedEventArgs e)
         {
-            var textBoxText = new TextRange((sender as RichTextBox).Document.ContentStart, (sender as RichTextBox).Document.ContentEnd).Text;
+            var box = (sender as RichTextBox);
+            var textBoxText = new TextRange(box.Document.ContentStart, box.Document.ContentEnd).Text;
             if (string.IsNullOrEmpty(textBoxText) || textBoxText.Equals(currentText)) return;
             if (clearingRuns)
             {
@@ -89,8 +90,13 @@ namespace FormelGui
                 return;
             }
 
+            var startDocument = box.Document.ContentStart;
+            var caret = box.CaretPosition;
+            var caretRange = new TextRange(startDocument, caret);
+            var caretIndex = caretRange.Text.Length;
+
             currentText = textBoxText;
-            
+
             var paragraph = (sender as RichTextBox).Document.Blocks.FirstBlock as Paragraph;
 
             if (paragraph?.Inlines == null) return;
@@ -99,15 +105,15 @@ namespace FormelGui
 
             var newRuns = new List<Run>();
 
-            foreach(var run in runs)
+            foreach (var run in runs)
             {
-                if(run.Text.StartsWith("${") && run.Text.EndsWith("}"))
+                if (run.Text.StartsWith("${") && run.Text.EndsWith("}"))
                 {
                     run.Style = (Style)Resources["runStyle"];
                     newRuns.Add(run);
                     newRuns.Add(new Run());
                 }
-                else if(run.Text.Contains("${"))
+                else if (run.Text.Contains("${"))
                 {
                     var variableIndex = run.Text.IndexOf("${");
                     if (variableIndex > 0)
@@ -133,9 +139,8 @@ namespace FormelGui
             {
                 clearingRuns = true;
                 paragraph.Inlines.Clear();
-                //clearingRuns = true;
                 paragraph.Inlines.AddRange(newRuns);
-                    (sender as RichTextBox).CaretPosition = paragraph.ContentEnd;
+                (sender as RichTextBox).CaretPosition = box.CaretPosition.GetPositionAtOffset(caretIndex);
             }
         }
 
@@ -176,7 +181,7 @@ namespace FormelGui
                 clickedSpan.Background = (SolidColorBrush)(new BrushConverter().ConvertFrom("#FFA1DDFF"));
             }
             var clickedRun = mainWindow.CurrentClickedRun;
-            if(clickedRun != null)
+            if (clickedRun != null)
             {
                 clickedRun.Text = Text;
                 clickedRun.Background = (SolidColorBrush)(new BrushConverter().ConvertFrom("#FFA1DDFF"));
