@@ -51,6 +51,7 @@ namespace FormelGui
             InitializeComponent();
             var contextMenu = FindResource("spanMenu") as ContextMenu;
             contextMenu.DataContext = this;
+            entryBox.Focus();
         }
 
         private void ContextMenu_Closed(object sender, RoutedEventArgs e)
@@ -76,72 +77,8 @@ namespace FormelGui
             }
         }
 
-        private string currentText = "";
-        private bool clearingRuns = false;
-
         private void RichTextBox_TextChanged(object sender, TextChangedEventArgs e)
         {
-            var box = (sender as RichTextBox);
-            var textBoxText = new TextRange(box.Document.ContentStart, box.Document.ContentEnd).Text;
-            if (string.IsNullOrEmpty(textBoxText) || textBoxText.Equals(currentText)) return;
-            if (clearingRuns)
-            {
-                clearingRuns = false;
-                return;
-            }
-
-            var startDocument = box.Document.ContentStart;
-            var caret = box.CaretPosition;
-            var caretRange = new TextRange(startDocument, caret);
-            var caretIndex = caretRange.Text.Length;
-
-            currentText = textBoxText;
-
-            var paragraph = (sender as RichTextBox).Document.Blocks.FirstBlock as Paragraph;
-
-            if (paragraph?.Inlines == null) return;
-
-            var runs = paragraph.Inlines.OfType<Run>();
-
-            var newRuns = new List<Run>();
-
-            foreach (var run in runs)
-            {
-                if (run.Text.StartsWith("${") && run.Text.EndsWith("}"))
-                {
-                    run.Style = (Style)Resources["runStyle"];
-                    newRuns.Add(run);
-                    newRuns.Add(new Run());
-                }
-                else if (run.Text.Contains("${"))
-                {
-                    var variableIndex = run.Text.IndexOf("${");
-                    if (variableIndex > 0)
-                    {
-                        var before = run.Text.Substring(0, run.Text.IndexOf("${"));
-                        newRuns.Add(new Run(before));
-                        var after = run.Text.Replace(before, "");
-                        var afterRun = new Run(after);
-                        afterRun.Style = (Style)Resources["runStyleActive"];
-                    }
-                    else
-                    {
-                        run.Style = (Style)Resources["runStyleActive"];
-                        newRuns.Add(run);
-                    }
-                }
-                else
-                {
-                    newRuns.Add(run);
-                }
-            }
-            if (newRuns.Any())
-            {
-                clearingRuns = true;
-                paragraph.Inlines.Clear();
-                paragraph.Inlines.AddRange(newRuns);
-                (sender as RichTextBox).CaretPosition = box.CaretPosition.GetPositionAtOffset(caretIndex);
-            }
         }
 
         private void Run_MouseDown(object sender, MouseButtonEventArgs e)
