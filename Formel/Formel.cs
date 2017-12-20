@@ -1,30 +1,26 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using static System.Math;
 
 namespace Formel
 {
     public static class Formel
     {
-        static string[] operators = "+,-,*,/,^,(,)".Split(new[] { ',' });
-
         public static IResolver Resolver { get; set; } = new BasicResolver();
 
-        private static string HandleCurrentToken(List<Token> output, string currentToken)
+        private static void AddTokenToList(List<Token> output, string currentToken)
         {
             if (currentToken.Trim().Length > 0)
             {
                 output.Add(Token.FromString(currentToken.Trim()));
             }
-            return string.Empty;
         }
 
-        private static void PopUntilOpenParen(Stack<Operator> operators, List<Token> output)
+        private static IEnumerable<Token> PopUntilOpenParen(Stack<Operator> operators)
         {
             var topOp = operators.Peek();
             while (topOp != Operator.OpenParen)
             {
-                output.Add(new OperatorToken(operators.Pop()));
+                yield return new OperatorToken(operators.Pop());
                 topOp = operators.Peek();
             }
             if (topOp == Operator.OpenParen)
@@ -33,12 +29,12 @@ namespace Formel
             }
         }
 
-        private static void PopHigherOperators(Stack<Operator> operators, Operator op, List<Token> output)
+        private static IEnumerable<Token> PopHigherOperators(Stack<Operator> operators, Operator op)
         {
             var topOp = operators.Peek();
             while (operators.Count > 0 && topOp.Associativity == Associativity.Left && topOp.CompareTo(op) > -1)
             {
-                output.Add(new OperatorToken(operators.Pop()));
+                yield return new OperatorToken(operators.Pop());
                 if (operators.Count > 0)
                 {
                     topOp = operators.Peek();
@@ -66,30 +62,31 @@ namespace Formel
         {
             var output = new List<Token>();
             var operators = new Stack<Operator>();
-            var currentToken = "";
+            var currentToken = string.Empty;
             for (int i = 0; i < input.Length; i++)
             {
                 var token = input[i].ToString();
                 var (isOperator, @operator) = IsOperator(token);
                 if (isOperator)
                 {
-                    currentToken = HandleCurrentToken(output, currentToken);
+                    AddTokenToList(output, currentToken);
                     switch (@operator)
                     {
                         case Operator op when op == Operator.OpenParen:
                             operators.Push(op);
                             break;
                         case Operator op when op == Operator.CloseParen:
-                            PopUntilOpenParen(operators, output);
+                            output.AddRange(PopUntilOpenParen(operators));
                             break;
                         case Operator op when operators.Count > 0:
-                            PopHigherOperators(operators, op, output);
+                            output.AddRange(PopHigherOperators(operators, op));
                             operators.Push(@operator);
                             break;
                         default:
                             operators.Push(@operator);
                             break;
                     }
+                    currentToken = string.Empty;
                 }
                 else
                 {
@@ -97,8 +94,11 @@ namespace Formel
                 }
             }
 
-            AppendLastToken(output, currentToken);
-            PopAllOperatorsOntoOutput(operators, output);
+            if (!string.IsNullOrWhiteSpace(currentToken))
+            {
+                output.Add(Token.FromString(currentToken));
+            }
+            output.AddRange(operators.Select(op => new OperatorToken(op)));
 
             return output;
         }
@@ -121,9 +121,8 @@ namespace Formel
         {
             var tokenList = formula.ToList();
             var valueStack = new Stack<decimal>();
-            for (int i = 0; i < tokenList.Count; i++)
-            {
-                var token = tokenList[i];
+            foreach(var token in tokenList)
+            { 
                 if (token is ConstantToken constant)
                 {
                     valueStack.Push(constant.ConstantValue);
