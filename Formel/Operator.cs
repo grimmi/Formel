@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using static System.Math;
 
 namespace Formel
 {
@@ -24,13 +23,13 @@ namespace Formel
 
         private static Dictionary<string, Operator> TokenToOperatorMap = new Dictionary<string, Operator>
         {
-            [PowerToken] = new Operator("^", Associativity.Right),
-            [TimesToken] = new Operator("*"),
-            [DivideToken] = new Operator("/"),
-            [PlusToken] = new Operator("+"),
-            [MinusToken] = new Operator("-"),
-            [OpenParenToken] = new Operator("("),
-            [CloseParenToken] = new Operator(")", Associativity.Right)
+            [PowerToken] = new Operator(PowerToken, Associativity.Right) { Operation = (v1, v2) => (decimal)Math.Pow((double)v1, (double)v2) },
+            [TimesToken] = new Operator(TimesToken) { Operation = (v1, v2) => v1 * v2 },
+            [DivideToken] = new Operator(DivideToken) { Operation = (v1, v2) => v1 / v2 },
+            [PlusToken] = new Operator(PlusToken) { Operation = (v1, v2) => v1 + v2 },
+            [MinusToken] = new Operator(MinusToken) { Operation = (v1, v2) => v1 - v2 },
+            [OpenParenToken] = new Operator(OpenParenToken),
+            [CloseParenToken] = new Operator(CloseParenToken, Associativity.Right)
         };
 
         private static Dictionary<string, int> PrecedenceMap = new Dictionary<string, int>
@@ -52,8 +51,10 @@ namespace Formel
 
         public static void AddOperator(string token, Associativity associativity, int precedence, Func<decimal, decimal, decimal> operation)
         {
-            var newOp = new Operator(token, associativity);
-            newOp.Operation = operation;
+            var newOp = new Operator(token, associativity)
+            {
+                Operation = operation
+            };
             TokenToOperatorMap[token] = newOp;
             PrecedenceMap[token] = precedence;
         }
@@ -71,7 +72,7 @@ namespace Formel
         }
 
         public string Token { get; }
-
+        
         private Operator(string token, Associativity associativity = Associativity.Left)
         {
             Token = token;
@@ -84,16 +85,7 @@ namespace Formel
             {
                 return Operation(val1, val2);
             }
-
-            switch (Token)
-            {
-                case "^": return (decimal)Pow((double)val1, (double)val2);
-                case "*": return val1 * val2;
-                case "/": return val1 / val2;
-                case "+": return val1 + val2;
-                case "-": return val1 - val2;
-                default: throw new InvalidOperationException("this operator cannot be evaluated!");
-            }
+            throw new InvalidOperationException("this operator cannot be evaluated!");
         }
 
         public int CompareTo(Operator other)
